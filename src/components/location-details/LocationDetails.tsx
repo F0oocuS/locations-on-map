@@ -41,12 +41,11 @@ function LocationDetails({ location, onClose }: LocationDetailsProps): React.Rea
 				</button>
 
 				<div className="location-details__header">
-					<div className="location-details__title-section">
-						<h3 className="location-details__name">{location.name}</h3>
-						<span className="location-details__category">
-							{getCategoryName(location.category)}
-						</span>
-					</div>
+					<h3 className="location-details__name">{location.name}</h3>
+
+					<span className="location-details__category">
+						{getCategoryName(location.category)}
+					</span>
 				</div>
 
 				<div className="location-details__body">

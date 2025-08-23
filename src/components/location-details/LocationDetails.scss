@@ -9,28 +9,28 @@
 	animation: slideUp 0.3s ease-out;
 
 	&__content {
-		background: white;
-		border-radius: 12px;
-		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-		border: 1px solid #e9ecef;
-		position: relative;
 		padding: 20px;
+		position: relative;
+		border-radius: 6px;
+		background: white;
+		border: 1px solid #e9ecef;
+		box-shadow: 0 8px 32px rgba(0, 0, 0, .15);
 	}
 
 	&__close {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 30px;
+		height: 30px;
 		position: absolute;
-		top: 15px;
-		right: 15px;
+		top: 5px;
+		right: 5px;
 		background: none;
 		border: none;
 		font-size: 24px;
 		color: #6c757d;
 		cursor: pointer;
-		width: 30px;
-		height: 30px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 		border-radius: 50%;
 		transition: all 0.2s ease;
 
@@ -41,11 +41,12 @@
 	}
 
 	&__header {
+		margin-bottom: 10px;
+		padding-right: 20px;
 		display: flex;
+		flex-direction: column;
 		align-items: flex-start;
-		gap: 15px;
-		margin-bottom: 15px;
-		margin-right: 40px;
+		gap: 5px;
 	}
 
 	&__icon {
@@ -53,35 +54,22 @@
 		flex-shrink: 0;
 	}
 
-	&__title-section {
-		flex: 1;
-	}
-
 	&__name {
-		margin: 0 0 5px 0;
-		font-size: 1.3rem;
-		color: #333;
+		font-size: 20px;
+		line-height: 1;
 		font-weight: 600;
-		line-height: 1.3;
 	}
 
 	&__category {
-		background-color: #007bff;
-		color: white;
 		padding: 4px 8px;
-		border-radius: 12px;
-		font-size: 0.8rem;
-		font-weight: 500;
-	}
-
-	&__body {
-		padding-top: 10px;
+		color: #fff;
+		background-color: #007bff;
+		border-radius: 6px;
 	}
 
 	&__description {
-		margin: 0 0 15px 0;
-		font-size: 0.95rem;
-		color: #495057;
+		margin-bottom: 10px;
+		font-size: 18px;
 		line-height: 1.5;
 	}
 
@@ -89,7 +77,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-		font-size: 0.9rem;
 	}
 
 	&__coordinates,
@@ -98,13 +85,8 @@
 		justify-content: space-between;
 		align-items: center;
 
-		strong {
-			color: #495057;
-		}
-
 		span {
 			color: #6c757d;
-			font-family: 'Courier New', monospace;
 		}
 	}
 }
@@ -117,68 +99,5 @@
 	to {
 		opacity: 1;
 		transform: translate(-50%, 0);
-	}
-}
-
-@media (max-width: 768px) {
-	.location-details {
-		bottom: 15px;
-		max-width: none;
-		width: calc(100% - 20px);
-
-		&__content {
-			padding: 18px;
-		}
-
-		&__header {
-			margin-right: 35px;
-		}
-
-		&__name {
-			font-size: 1.2rem;
-		}
-
-		&__close {
-			top: 12px;
-			right: 12px;
-			font-size: 20px;
-			width: 28px;
-			height: 28px;
-		}
-
-		&__info {
-			flex-direction: column;
-			gap: 6px;
-		}
-
-		&__coordinates,
-		&__date {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 2px;
-		}
-	}
-}
-
-@media (max-width: 480px) {
-	.location-details {
-		bottom: 10px;
-		width: calc(100% - 16px);
-
-		&__content {
-			padding: 16px;
-		}
-
-		&__header {
-			gap: 12px;
-		}
-
-		&__icon {
-			font-size: 1.8rem;
-		}
-
-		&__name {
-			font-size: 1.1rem;
-		}
 	}
 }

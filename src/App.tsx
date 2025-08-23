@@ -15,6 +15,7 @@ function App(): React.ReactElement {
 	const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
 	const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
 	const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+	const [centerMapLocation, setCenterMapLocation] = useState<Location | null>(null);
 
 	const testLocations: Location[] = [
 		{
@@ -114,13 +115,18 @@ function App(): React.ReactElement {
 	const handleLocationClose = () => {
 		setSelectedLocation(null);
 	};
+
+	const handleLocationFromList = (location: Location) => {
+		setSelectedLocation(location);
+		setCenterMapLocation(location);
+	};
 	return (
 		<div className="app">
 			<div className="app__container">
 				<div className={`app__sidebar ${isLeftSidebarOpen ? 'app__sidebar--open' : ''}`}>
 					<LocationsList 
 						locations={testLocations} 
-						onLocationClick={handleLocationSelect}
+						onLocationClick={handleLocationFromList}
 					/>
 
 					<button className="app__sidebar-toggler" onClick={handleToggleLeftSidebar}>
@@ -132,6 +138,7 @@ function App(): React.ReactElement {
 					<Map 
 						locations={testLocations}
 						onLocationClick={handleLocationSelect}
+						centerMapLocation={centerMapLocation}
 					/>
 				</div>
 

@@ -8,20 +8,10 @@ interface LocationsListProps {
 }
 
 function LocationsList({ locations, onLocationClick }: LocationsListProps): React.ReactElement {
-	const getCategoryName = (category: string): string => {
-		switch (category) {
-			case 'food': return 'Їжа';
-			case 'park': return 'Парк';
-			case 'museum': return 'Музей';
-			case 'shop': return 'Магазин';
-			default: return 'Інше';
-		}
-	};
-
 	return (
 		<div className="locations-list">
 			<div className="locations-list__header">
-				<h2>Локації</h2>
+				<h2>Локації </h2>
 				<span className="locations-list__count">{locations.length}</span>
 			</div>
 			
