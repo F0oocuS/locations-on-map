@@ -1,0 +1,80 @@
+.app {
+	&__container {
+		display: flex;
+		min-height: 500px;
+		height: 100dvh;
+		overflow: hidden;
+		position: relative;
+	}
+
+	&__sidebar {
+		padding: 15px;
+		flex-grow: 0;
+		width: 250px;
+		height: 100%;
+		position: relative;
+		background-color: #402209;
+		transition: .3s ease all;
+	}
+
+	&__sidebar-toggler {
+		padding: 5px;
+		display: none;
+		position: absolute;
+		top: 50%;
+		left: 100%;
+		width: 40px;
+		height: 80px;
+		transform: translateY(-50%);
+		cursor: pointer;
+
+		&--right {
+			left: auto;
+			right: 100%;
+		}
+	}
+
+	&__toggler-icon {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		transition: .1s ease all;
+	}
+
+	&__content {
+		flex-grow: 1;
+		position: relative;
+		z-index: 100;
+	}
+}
+
+@media(max-width: 1024px) {
+	.app {
+		&__sidebar {
+			transform: translateX(-100%);
+			position: absolute;
+			top: 0;
+			left: 0;
+			z-index: 1000;
+
+			&--right {
+				left: auto;
+				right: 0;
+				transform: translateX(100%);
+			}
+
+			&--open {
+				right: 0;
+				transform: translateX(0);
+
+				.app__toggler-icon {
+					transform: rotate(180deg);
+				}
+			}
+		}
+
+		&__sidebar-toggler {
+			display: block;
+		}
+	}
+}
