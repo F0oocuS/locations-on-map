@@ -143,15 +143,12 @@ function App(): React.ReactElement {
 	};
 
 	const handleLocationDelete = async (locationId: string) => {
-		console.log('Attempting to delete location with ID:', locationId);
 		try {
 			await ApiService.deleteLocation(locationId);
-			console.log('Location deleted successfully from API');
 			setLocations(prevLocations => 
 				prevLocations.filter(location => location.id !== locationId)
 			);
 			setSelectedLocation(null);
-			console.log('Location removed from state');
 		} catch (err) {
 			console.error('Error deleting location:', err);
 			setError('Помилка видалення локації');
@@ -161,6 +158,36 @@ function App(): React.ReactElement {
 	const handleLocationManagerClose = () => {
 		setSelectedLocation(null);
 		setMapClickCoordinates(null);
+	};
+
+	const handleExportGeoJSON = () => {
+		const geoJSON = {
+			type: "FeatureCollection",
+			features: locations.map(location => ({
+				type: "Feature",
+				geometry: {
+					type: "Point",
+					coordinates: [location.coords.lon, location.coords.lat]
+				},
+				properties: {
+					id: location.id,
+					name: location.name,
+					category: location.category,
+					description: location.description,
+					createdAt: location.createdAt
+				}
+			}))
+		};
+
+		const dataStr = JSON.stringify(geoJSON, null, 2);
+		const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+		
+		const exportFileDefaultName = `locations-${new Date().toISOString().split('T')[0]}.geojson`;
+		
+		const linkElement = document.createElement('a');
+		linkElement.setAttribute('href', dataUri);
+		linkElement.setAttribute('download', exportFileDefaultName);
+		linkElement.click();
 	};
 
 	if (loading) {
@@ -206,6 +233,7 @@ function App(): React.ReactElement {
 						onLocationClick={handleLocationSelect}
 						centerMapLocation={centerMapLocation}
 						onMapClick={handleMapClick}
+						onExportGeoJSON={handleExportGeoJSON}
 					/>
 				</div>
 

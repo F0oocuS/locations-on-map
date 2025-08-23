@@ -18,9 +18,10 @@ interface MapProps {
 	onLocationClick: (location: Location) => void;
 	centerMapLocation: Location | null;
 	onMapClick?: (coordinates?: Coordinate) => void;
+	onExportGeoJSON?: () => void;
 }
 
-function Map({ locations, onLocationClick, centerMapLocation, onMapClick }: MapProps): React.ReactElement {
+function Map({ locations, onLocationClick, centerMapLocation, onMapClick, onExportGeoJSON }: MapProps): React.ReactElement {
 	const center: number[] = [50.4501, 30.5234];
 	const cityBounds: L.LatLngBoundsExpression = [
 		[50.2133, 30.2394],
@@ -53,43 +54,54 @@ function Map({ locations, onLocationClick, centerMapLocation, onMapClick }: MapP
 	};
 
 	return (
-		<MapContainer
-			center={center} // центр Києва
-			zoom={12}
-			maxBounds={cityBounds}
-			maxBoundsViscosity={1.0}
-			style={{ height: "100vh", width: "100%" }}
-		>
-			<TileLayer
-				url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-				minZoom={10}
-				maxZoom={16}
-			/>
-
-			<MapController selectedLocation={centerMapLocation} />
-			{onMapClick && <MapClickHandler onMapClick={onMapClick} />}
-
-			<MarkerClusterGroup
-				chunkedLoading
-				maxClusterRadius={80}
-				spiderfyOnMaxZoom={true}
-				showCoverageOnHover={false}
-				zoomToBoundsOnClick={true}
-				disableClusteringAtZoom={16}
-				iconCreateFunction={createClusterCustomIcon}
+		<div className="map-wrapper">
+			{onExportGeoJSON && (
+				<button 
+					className="map__export-btn"
+					onClick={onExportGeoJSON}
+					title="Завантажити GeoJSON"
+				>
+					📥 Завантажити GeoJSON
+				</button>
+			)}
+			<MapContainer
+				center={center} // центр Києва
+				zoom={12}
+				maxBounds={cityBounds}
+				maxBoundsViscosity={1.0}
+				style={{ height: "100vh", width: "100%" }}
 			>
-				{locations.map((location) => (
-					<Marker 
-						key={location.id}
-						position={[location.coords.lat, location.coords.lon]} 
-						icon={customIcon}
-						eventHandlers={{
-							click: () => onLocationClick(location)
-						}}
-					/>
-				))}
-			</MarkerClusterGroup>
-		</MapContainer>
+				<TileLayer
+					url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+					minZoom={10}
+					maxZoom={16}
+				/>
+
+				<MapController selectedLocation={centerMapLocation} />
+				{onMapClick && <MapClickHandler onMapClick={onMapClick} />}
+
+				<MarkerClusterGroup
+					chunkedLoading
+					maxClusterRadius={80}
+					spiderfyOnMaxZoom={true}
+					showCoverageOnHover={false}
+					zoomToBoundsOnClick={true}
+					disableClusteringAtZoom={16}
+					iconCreateFunction={createClusterCustomIcon}
+				>
+					{locations.map((location) => (
+						<Marker 
+							key={location.id}
+							position={[location.coords.lat, location.coords.lon]} 
+							icon={customIcon}
+							eventHandlers={{
+								click: () => onLocationClick(location)
+							}}
+						/>
+					))}
+				</MarkerClusterGroup>
+			</MapContainer>
+		</div>
 	);
 }
 

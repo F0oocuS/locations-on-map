@@ -72,3 +72,41 @@
 .leaflet-cluster-anim .leaflet-marker-shadow {
 	transition: transform 0.3s ease-out, opacity 0.3s ease-in;
 }
+
+.map-wrapper {
+	position: relative;
+	height: 100vh;
+	width: 100%;
+}
+
+.map__export-btn {
+	position: absolute;
+	top: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1000;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	padding: 10px 16px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+
+	&:hover {
+		background-color: #0056b3;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+		transform: translateX(-50%) translateY(-1px);
+	}
+
+	&:active {
+		transform: translateX(-50%) translateY(0);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+	}
+}

@@ -137,9 +137,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 	};
 
 	const handleDelete = () => {
-		console.log('Delete button clicked, selectedLocation:', selectedLocation);
 		if (selectedLocation && window.confirm(`Видалити локацію "${selectedLocation.name}"?`)) {
-			console.log('User confirmed deletion, calling onLocationDelete');
 			onLocationDelete(selectedLocation.id);
 			setMode('list');
 			onClose();
