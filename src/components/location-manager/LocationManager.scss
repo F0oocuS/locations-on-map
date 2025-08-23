@@ -22,6 +22,24 @@
     flex-direction: column;
   }
 
+  &__errors {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+  }
+
+  &__error {
+    margin: 0 0 8px 0;
+    color: #721c24;
+    font-size: 14px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
   &__form {
     display: flex;
     flex-direction: column;
@@ -69,6 +87,20 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
+  }
+
+  &__coordinates-hint {
+    margin-top: 8px;
+    
+    p {
+      margin: 0;
+      font-size: 12px;
+      color: #666;
+      background: #f8f9fa;
+      padding: 8px;
+      border-radius: 4px;
+      border-left: 3px solid #007bff;
+    }
   }
 
   &__info {

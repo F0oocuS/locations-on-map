@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Location from '../../core/interfaces/Location.tsx';
 import Coordinate from '../../core/interfaces/Coordinate.tsx';
+import { isCoordinatesInBounds, MAP_BOUNDS } from '../../core/constants/mapBounds.ts';
 import './LocationManager.scss';
 
 interface LocationManagerProps {
@@ -22,6 +23,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 	onClose,
 	mapClickCoordinates
 }) => {
+	
 	const [mode, setMode] = useState<LocationManagerMode>('list');
 	const [formData, setFormData] = useState({
 		name: '',
@@ -30,6 +32,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 		lat: 0,
 		lon: 0
 	});
+	const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
 	useEffect(() => {
 		if (selectedLocation) {
@@ -58,32 +61,69 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 				lat: selectedLocation.coords.lat,
 				lon: selectedLocation.coords.lon
 			});
+			setValidationErrors([]);
+		} else if (mode === 'create') {
+			resetForm();
 		}
 	}, [mode, selectedLocation]);
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
 		const { name, value } = e.target;
+		const newValue = name === 'lat' || name === 'lon' ? parseFloat(value) || 0 : value;
+		
 		setFormData(prev => ({
 			...prev,
-			[name]: name === 'lat' || name === 'lon' ? parseFloat(value) || 0 : value
+			[name]: newValue
 		}));
+
+		// Очищаємо попередні помилки валідації при зміні полів
+		setValidationErrors([]);
+	};
+
+	const validateForm = (): boolean => {
+		const errors: string[] = [];
+
+		// Перевірка назви
+		if (!formData.name.trim()) {
+			errors.push('Назва локації є обов\'язковою');
+		}
+
+		// Перевірка координат
+		if (formData.lat === 0 && formData.lon === 0) {
+			errors.push('Координати не можуть бути 0,0. Оберіть точку на карті або введіть валідні координати');
+		} else if (!isCoordinatesInBounds(formData.lat, formData.lon)) {
+			errors.push(`Координати повинні бути в межах доступної області карти (${MAP_BOUNDS.minLat} - ${MAP_BOUNDS.maxLat}, ${MAP_BOUNDS.minLon} - ${MAP_BOUNDS.maxLon})`);
+		}
+
+		setValidationErrors(errors);
+		return errors.length === 0;
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		
-		const locationData = {
-			name: formData.name,
-			category: formData.category,
-			description: formData.description,
-			createdAt: selectedLocation?.createdAt || new Date().toISOString().split('T')[0],
-			coords: { lat: formData.lat, lon: formData.lon }
-		};
-
+		if (!validateForm()) {
+			return;
+		}
+		
 		if (mode === 'create') {
+			const locationData = {
+				name: formData.name,
+				category: formData.category,
+				description: formData.description,
+				coords: { lat: formData.lat, lon: formData.lon }
+			};
 			onLocationCreate(locationData);
 		} else if (mode === 'edit' && selectedLocation) {
-			onLocationUpdate({ ...locationData, id: selectedLocation.id });
+			const locationData = {
+				id: selectedLocation.id,
+				name: formData.name,
+				category: formData.category,
+				description: formData.description,
+				createdAt: selectedLocation.createdAt, // Зберігаємо оригінальну дату при редагуванні
+				coords: { lat: formData.lat, lon: formData.lon }
+			};
+			onLocationUpdate(locationData);
 		}
 		
 		setMode('list');
@@ -91,11 +131,15 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 	};
 
 	const handleEdit = () => {
-		setMode('edit');
+		if (selectedLocation) {
+			setMode('edit');
+		}
 	};
 
 	const handleDelete = () => {
+		console.log('Delete button clicked, selectedLocation:', selectedLocation);
 		if (selectedLocation && window.confirm(`Видалити локацію "${selectedLocation.name}"?`)) {
+			console.log('User confirmed deletion, calling onLocationDelete');
 			onLocationDelete(selectedLocation.id);
 			setMode('list');
 			onClose();
@@ -115,6 +159,7 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 			lat: 0,
 			lon: 0
 		});
+		setValidationErrors([]);
 	};
 
 	const handleCreateNew = () => {
@@ -140,6 +185,14 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 				<div className="location-manager__header">
 					<h3>{mode === 'create' ? 'Створити локацію' : 'Редагувати локацію'}</h3>
 				</div>
+				
+				{validationErrors.length > 0 && (
+					<div className="location-manager__errors">
+						{validationErrors.map((error, index) => (
+							<p key={index} className="location-manager__error">{error}</p>
+						))}
+					</div>
+				)}
 				
 				<form className="location-manager__form" onSubmit={handleSubmit}>
 					<div className="location-manager__field">
@@ -192,6 +245,9 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 								step="any"
 								value={formData.lat}
 								onChange={handleInputChange}
+								min={MAP_BOUNDS.minLat}
+								max={MAP_BOUNDS.maxLat}
+								placeholder={`${MAP_BOUNDS.minLat} - ${MAP_BOUNDS.maxLat}`}
 								required
 							/>
 						</div>
@@ -204,9 +260,16 @@ const LocationManager: React.FC<LocationManagerProps> = ({
 								step="any"
 								value={formData.lon}
 								onChange={handleInputChange}
+								min={MAP_BOUNDS.minLon}
+								max={MAP_BOUNDS.maxLon}
+								placeholder={`${MAP_BOUNDS.minLon} - ${MAP_BOUNDS.maxLon}`}
 								required
 							/>
 						</div>
+					</div>
+					
+					<div className="location-manager__coordinates-hint">
+						<p>💡 Підказка: Клікніть на карту для автоматичного заповнення координат або введіть їх в межах доступної області Києва</p>
 					</div>
 
 					<div className="location-manager__actions">

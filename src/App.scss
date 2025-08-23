@@ -1,4 +1,42 @@
 .app {
+	&__loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+		
+		p {
+			font-size: 18px;
+			color: #666;
+		}
+	}
+
+	&__error {
+		position: fixed;
+		top: 20px;
+		right: 20px;
+		background: #f8d7da;
+		color: #721c24;
+		padding: 15px;
+		border-radius: 5px;
+		border: 1px solid #f5c6cb;
+		z-index: 1000;
+		max-width: 400px;
+		
+		p {
+			margin: 0 0 10px 0;
+		}
+		
+		button {
+			background: #721c24;
+			color: white;
+			border: none;
+			padding: 5px 10px;
+			border-radius: 3px;
+			cursor: pointer;
+		}
+	}
+
 	&__container {
 		display: flex;
 		min-height: 500px;

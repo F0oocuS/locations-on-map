@@ -1,5 +1,5 @@
 import "leaflet/dist/leaflet.css";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 import Map from './components/map/Map.tsx';
 import LocationsList, { SortOption } from './components/locations-list/LocationsList.tsx';
@@ -7,6 +7,7 @@ import LocationDetails from './components/location-details/LocationDetails.tsx';
 import LocationManager from './components/location-manager/LocationManager.tsx';
 import Location from './core/interfaces/Location.tsx';
 import Coordinate from './core/interfaces/Coordinate.tsx';
+import { ApiService } from './core/services/api.service.ts';
 
 import './App.scss';
 
@@ -19,96 +20,35 @@ function App(): React.ReactElement {
 	const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
 	const [centerMapLocation, setCenterMapLocation] = useState<Location | null>(null);
 	const [mapClickCoordinates, setMapClickCoordinates] = useState<Coordinate | null>(null);
+	const [loading, setLoading] = useState<boolean>(true);
+	const [error, setError] = useState<string | null>(null);
 	
 	// Стани для фільтрації
 	const [searchQuery, setSearchQuery] = useState('');
 	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 	const [sortOption, setSortOption] = useState<SortOption>('name-asc');
 
-	const initialLocations: Location[] = [
-		{
-			id: '1',
-			name: 'Майдан Незалежності',
-			category: 'other',
-			description: 'Головна площа України',
-			createdAt: '2024-01-01',
-			coords: { lat: 50.4501, lon: 30.5234 }
-		},
-		{
-			id: '2',
-			name: 'Золоті ворота',
-			category: 'museum',
-			description: 'Історична пам\'ятка Києва',
-			createdAt: '2024-01-02',
-			coords: { lat: 50.4487, lon: 30.5131 }
-		},
-		{
-			id: '3',
-			name: 'Софійський собор',
-			category: 'museum',
-			description: 'Унікальна архітектурна пам\'ятка',
-			createdAt: '2024-01-03',
-			coords: { lat: 50.4528, lon: 30.5146 }
-		},
-		{
-			id: '4',
-			name: 'Парк Шевченка',
-			category: 'park',
-			description: 'Великий міський парк',
-			createdAt: '2024-01-04',
-			coords: { lat: 50.4481, lon: 30.4581 }
-		},
-		{
-			id: '5',
-			name: 'ЦУМ',
-			category: 'shop',
-			description: 'Центральний універмаг',
-			createdAt: '2024-01-05',
-			coords: { lat: 50.4467, lon: 30.5203 }
-		},
-		{
-			id: '6',
-			name: 'Ресторан Канапа',
-			category: 'food',
-			description: 'Українська кухня',
-			createdAt: '2024-01-06',
-			coords: { lat: 50.4515, lon: 30.5147 }
-		},
-		{
-			id: '7',
-			name: 'Гідропарк',
-			category: 'park',
-			description: 'Острів для відпочинку',
-			createdAt: '2024-01-07',
-			coords: { lat: 50.4649, lon: 30.5763 }
-		},
-		{
-			id: '8',
-			name: 'Бессарабський ринок',
-			category: 'food',
-			description: 'Історичний продуктовий ринок',
-			createdAt: '2024-01-08',
-			coords: { lat: 50.4410, lon: 30.5194 }
-		},
-		{
-			id: '9',
-			name: 'Океан Плаза',
-			category: 'shop',
-			description: 'Торговельний центр',
-			createdAt: '2024-01-09',
-			coords: { lat: 50.4333, lon: 30.5178 }
-		},
-		{
-			id: '10',
-			name: 'Музей однієї вулиці',
-			category: 'museum',
-			description: 'Унікальний музей на Андріївському узвозі',
-			createdAt: '2024-01-10',
-			coords: { lat: 50.4572, lon: 30.5188 }
-		}
-	];
+	const [locations, setLocations] = useState<Location[]>([]);
 
-	const [locations, setLocations] = useState<Location[]>(initialLocations);
+	// Завантаження локацій з API
+	useEffect(() => {
+		const fetchLocations = async () => {
+			try {
+				setLoading(true);
+				setError(null);
+				const fetchedLocations = await ApiService.getLocations();
+				setLocations(fetchedLocations);
+			} catch (err) {
+				console.error('Error fetching locations:', err);
+				setError('Помилка завантаження локацій. Перевірте з\'єднання з сервером.');
+				setLocations([]); // Порожній масив, якщо сервер не відповідає
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchLocations();
+	}, []);
 
 	// Логіка фільтрації та сортування
 	const filteredAndSortedLocations = useMemo(() => {
@@ -176,37 +116,71 @@ function App(): React.ReactElement {
 	};
 
 	// Обробники для LocationManager
-	const handleLocationCreate = (locationData: Omit<Location, 'id'>) => {
-		const newLocation: Location = {
-			...locationData,
-			id: `location_${Date.now()}`
-		};
-		setLocations(prevLocations => [...prevLocations, newLocation]);
-		setMapClickCoordinates(null);
+	const handleLocationCreate = async (locationData: Omit<Location, 'id'>) => {
+		try {
+			const newLocation = await ApiService.createLocation(locationData);
+			setLocations(prevLocations => [...prevLocations, newLocation]);
+			setMapClickCoordinates(null);
+		} catch (err) {
+			console.error('Error creating location:', err);
+			setError('Помилка створення локації');
+		}
 	};
 
-	const handleLocationUpdate = (updatedLocation: Location) => {
-		setLocations(prevLocations => 
-			prevLocations.map(location => 
-				location.id === updatedLocation.id ? updatedLocation : location
-			)
-		);
-		setSelectedLocation(updatedLocation);
+	const handleLocationUpdate = async (updatedLocation: Location) => {
+		try {
+			const updated = await ApiService.updateLocation(updatedLocation.id, updatedLocation);
+			setLocations(prevLocations => 
+				prevLocations.map(location => 
+					location.id === updated.id ? updated : location
+				)
+			);
+			setSelectedLocation(updated);
+		} catch (err) {
+			console.error('Error updating location:', err);
+			setError('Помилка оновлення локації');
+		}
 	};
 
-	const handleLocationDelete = (locationId: string) => {
-		setLocations(prevLocations => 
-			prevLocations.filter(location => location.id !== locationId)
-		);
-		setSelectedLocation(null);
+	const handleLocationDelete = async (locationId: string) => {
+		console.log('Attempting to delete location with ID:', locationId);
+		try {
+			await ApiService.deleteLocation(locationId);
+			console.log('Location deleted successfully from API');
+			setLocations(prevLocations => 
+				prevLocations.filter(location => location.id !== locationId)
+			);
+			setSelectedLocation(null);
+			console.log('Location removed from state');
+		} catch (err) {
+			console.error('Error deleting location:', err);
+			setError('Помилка видалення локації');
+		}
 	};
 
 	const handleLocationManagerClose = () => {
 		setSelectedLocation(null);
 		setMapClickCoordinates(null);
 	};
+
+	if (loading) {
+		return (
+			<div className="app">
+				<div className="app__loading">
+					<p>Завантаження локацій...</p>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="app">
+			{error && (
+				<div className="app__error">
+					<p>{error}</p>
+					<button onClick={() => setError(null)}>Закрити</button>
+				</div>
+			)}
 			<div className="app__container">
 				<div className={`app__sidebar ${isLeftSidebarOpen ? 'app__sidebar--open' : ''}`}>
 					<LocationsList 
