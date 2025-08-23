@@ -1,10 +1,12 @@
-import React, { useState, useMemo } from 'react';
 import "leaflet/dist/leaflet.css";
+import React, { useState, useMemo } from 'react';
 
 import Map from './components/map/Map.tsx';
 import LocationsList, { SortOption } from './components/locations-list/LocationsList.tsx';
 import LocationDetails from './components/location-details/LocationDetails.tsx';
+import LocationManager from './components/location-manager/LocationManager.tsx';
 import Location from './core/interfaces/Location.tsx';
+import Coordinate from './core/interfaces/Coordinate.tsx';
 
 import './App.scss';
 
@@ -16,13 +18,14 @@ function App(): React.ReactElement {
 	const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
 	const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
 	const [centerMapLocation, setCenterMapLocation] = useState<Location | null>(null);
+	const [mapClickCoordinates, setMapClickCoordinates] = useState<Coordinate | null>(null);
 	
 	// Стани для фільтрації
 	const [searchQuery, setSearchQuery] = useState('');
 	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 	const [sortOption, setSortOption] = useState<SortOption>('name-asc');
 
-	const testLocations: Location[] = [
+	const initialLocations: Location[] = [
 		{
 			id: '1',
 			name: 'Майдан Незалежності',
@@ -105,9 +108,11 @@ function App(): React.ReactElement {
 		}
 	];
 
+	const [locations, setLocations] = useState<Location[]>(initialLocations);
+
 	// Логіка фільтрації та сортування
 	const filteredAndSortedLocations = useMemo(() => {
-		let result = testLocations;
+		let result = locations;
 
 		// Фільтрація за категоріями
 		if (selectedCategories.length > 0) {
@@ -140,7 +145,7 @@ function App(): React.ReactElement {
 		});
 
 		return result;
-	}, [searchQuery, selectedCategories, sortOption]);
+	}, [locations, searchQuery, selectedCategories, sortOption]);
 
 	const handleToggleLeftSidebar = () => {
 		setIsLeftSidebarOpen(!isLeftSidebarOpen);
@@ -163,15 +168,49 @@ function App(): React.ReactElement {
 		setCenterMapLocation(location);
 	};
 
-	const handleMapClick = () => {
+	const handleMapClick = (coordinates?: Coordinate) => {
 		setSelectedLocation(null);
+		if (coordinates) {
+			setMapClickCoordinates(coordinates);
+		}
+	};
+
+	// Обробники для LocationManager
+	const handleLocationCreate = (locationData: Omit<Location, 'id'>) => {
+		const newLocation: Location = {
+			...locationData,
+			id: `location_${Date.now()}`
+		};
+		setLocations(prevLocations => [...prevLocations, newLocation]);
+		setMapClickCoordinates(null);
+	};
+
+	const handleLocationUpdate = (updatedLocation: Location) => {
+		setLocations(prevLocations => 
+			prevLocations.map(location => 
+				location.id === updatedLocation.id ? updatedLocation : location
+			)
+		);
+		setSelectedLocation(updatedLocation);
+	};
+
+	const handleLocationDelete = (locationId: string) => {
+		setLocations(prevLocations => 
+			prevLocations.filter(location => location.id !== locationId)
+		);
+		setSelectedLocation(null);
+	};
+
+	const handleLocationManagerClose = () => {
+		setSelectedLocation(null);
+		setMapClickCoordinates(null);
 	};
 	return (
 		<div className="app">
 			<div className="app__container">
 				<div className={`app__sidebar ${isLeftSidebarOpen ? 'app__sidebar--open' : ''}`}>
 					<LocationsList 
-						locations={testLocations}
+						locations={locations}
 						filteredLocations={filteredAndSortedLocations}
 						onLocationClick={handleLocationFromList}
 						searchQuery={searchQuery}
@@ -197,6 +236,14 @@ function App(): React.ReactElement {
 				</div>
 
 				<div className={`app__sidebar app__sidebar--right ${isRightSidebarOpen ? 'app__sidebar--open' : ''}`}>
+					<LocationManager
+						selectedLocation={selectedLocation}
+						onLocationUpdate={handleLocationUpdate}
+						onLocationDelete={handleLocationDelete}
+						onLocationCreate={handleLocationCreate}
+						onClose={handleLocationManagerClose}
+						mapClickCoordinates={mapClickCoordinates}
+					/>
 
 					<button className="app__sidebar-toggler app__sidebar-toggler--right" onClick={handleToggleRightSidebar}>
 						<img src={ leftArrow } alt="Left arrow" className="app__toggler-icon"/>

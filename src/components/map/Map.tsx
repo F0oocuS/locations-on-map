@@ -1,19 +1,23 @@
 import React from 'react';
 import L from 'leaflet';
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
-import MapController from './MapController.tsx';
-import MapClickHandler from './MapClickHandler.tsx';
+
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import './Map.scss';
+
+import MapController from './MapController.tsx';
+import MapClickHandler from './MapClickHandler.tsx';
+
 import Location from '../../core/interfaces/Location.tsx';
+import Coordinate from '../../core/interfaces/Coordinate.tsx';
 
 interface MapProps {
 	locations: Location[];
 	onLocationClick: (location: Location) => void;
 	centerMapLocation: Location | null;
-	onMapClick?: () => void;
+	onMapClick?: (coordinates?: Coordinate) => void;
 }
 
 function Map({ locations, onLocationClick, centerMapLocation, onMapClick }: MapProps): React.ReactElement {
@@ -23,8 +27,8 @@ function Map({ locations, onLocationClick, centerMapLocation, onMapClick }: MapP
 		[50.5900, 30.8250]
 	];
 	const customIcon = new L.Icon({
-		iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-		shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+		iconUrl: "src/assets/image/marker-icon.png",
+		shadowUrl: "src/assets/image/marker-shadow.png",
 		iconSize: [25, 41],
 		iconAnchor: [12, 41],
 	});

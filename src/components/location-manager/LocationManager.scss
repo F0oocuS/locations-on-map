@@ -1,0 +1,164 @@
+.location-manager {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: #fff;
+
+  &__header {
+    margin-bottom: 20px;
+    
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-weight: 500;
+      color: #555;
+      font-size: 14px;
+    }
+
+    input, select, textarea {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    select {
+      cursor: pointer;
+    }
+  }
+
+  &__coordinates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  &__info {
+    flex: 1;
+    margin-bottom: 20px;
+    
+    p {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      line-height: 1.4;
+      
+      strong {
+        color: #333;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: auto;
+  }
+
+  &__btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    &--primary {
+      background-color: #007bff;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background-color: #0056b3;
+      }
+    }
+
+    &--secondary {
+      background-color: #f8f9fa;
+      color: #6c757d;
+      border: 1px solid #dee2e6;
+
+      &:hover:not(:disabled) {
+        background-color: #e9ecef;
+        color: #495057;
+      }
+    }
+
+    &--danger {
+      background-color: #dc3545;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background-color: #c82333;
+      }
+    }
+
+    &--full {
+      width: 100%;
+      justify-self: stretch;
+    }
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .location-manager {
+    padding: 16px;
+
+    &__coordinates {
+      grid-template-columns: 1fr;
+    }
+
+    &__actions {
+      flex-direction: column;
+
+      .location-manager__btn {
+        width: 100%;
+      }
+    }
+  }
+}

@@ -1,13 +1,18 @@
 import { useMapEvents } from 'react-leaflet';
+import Coordinate from '../../core/interfaces/Coordinate.tsx';
 
 interface MapClickHandlerProps {
-	onMapClick: () => void;
+	onMapClick: (coordinates?: Coordinate) => void;
 }
 
 function MapClickHandler({ onMapClick }: MapClickHandlerProps) {
 	useMapEvents({
-		click: () => {
-			onMapClick();
+		click: (event) => {
+			const coordinates: Coordinate = {
+				lat: event.latlng.lat,
+				lon: event.latlng.lng
+			};
+			onMapClick(coordinates);
 		},
 	});
 
