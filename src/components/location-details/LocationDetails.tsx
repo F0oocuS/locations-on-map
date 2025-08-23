@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Location from '../../core/interfaces/Location.tsx';
 import './LocationDetails.scss';
 
@@ -8,6 +8,24 @@ interface LocationDetailsProps {
 }
 
 function LocationDetails({ location, onClose }: LocationDetailsProps): React.ReactElement | null {
+	const detailsRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (detailsRef.current && !detailsRef.current.contains(event.target as Node)) {
+				onClose();
+			}
+		};
+
+		if (location) {
+			document.addEventListener('mousedown', handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [location, onClose]);
+
 	if (!location) return null;
 
 	const getCategoryName = (category: string): string => {
@@ -31,7 +49,7 @@ function LocationDetails({ location, onClose }: LocationDetailsProps): React.Rea
 
 	return (
 		<div className="location-details">
-			<div className="location-details__content">
+			<div className="location-details__content" ref={detailsRef}>
 				<button 
 					className="location-details__close" 
 					onClick={onClose}

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import "leaflet/dist/leaflet.css";
 
 import Map from './components/map/Map.tsx';
-import LocationsList from './components/locations-list/LocationsList.tsx';
+import LocationsList, { SortOption } from './components/locations-list/LocationsList.tsx';
 import LocationDetails from './components/location-details/LocationDetails.tsx';
 import Location from './core/interfaces/Location.tsx';
 
@@ -16,6 +16,11 @@ function App(): React.ReactElement {
 	const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
 	const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
 	const [centerMapLocation, setCenterMapLocation] = useState<Location | null>(null);
+	
+	// Стани для фільтрації
+	const [searchQuery, setSearchQuery] = useState('');
+	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+	const [sortOption, setSortOption] = useState<SortOption>('name-asc');
 
 	const testLocations: Location[] = [
 		{
@@ -100,6 +105,43 @@ function App(): React.ReactElement {
 		}
 	];
 
+	// Логіка фільтрації та сортування
+	const filteredAndSortedLocations = useMemo(() => {
+		let result = testLocations;
+
+		// Фільтрація за категоріями
+		if (selectedCategories.length > 0) {
+			result = result.filter(location => selectedCategories.includes(location.category));
+		}
+
+		// Фільтрація за пошуковим запитом
+		if (searchQuery.trim()) {
+			result = result.filter(location =>
+				location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				location.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				location.category.toLowerCase().includes(searchQuery.toLowerCase())
+			);
+		}
+
+		// Сортування
+		result = [...result].sort((a, b) => {
+			switch (sortOption) {
+				case 'name-asc':
+					return a.name.localeCompare(b.name, 'uk');
+				case 'name-desc':
+					return b.name.localeCompare(a.name, 'uk');
+				case 'date-asc':
+					return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+				case 'date-desc':
+					return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+				default:
+					return 0;
+			}
+		});
+
+		return result;
+	}, [searchQuery, selectedCategories, sortOption]);
+
 	const handleToggleLeftSidebar = () => {
 		setIsLeftSidebarOpen(!isLeftSidebarOpen);
 	};
@@ -120,13 +162,24 @@ function App(): React.ReactElement {
 		setSelectedLocation(location);
 		setCenterMapLocation(location);
 	};
+
+	const handleMapClick = () => {
+		setSelectedLocation(null);
+	};
 	return (
 		<div className="app">
 			<div className="app__container">
 				<div className={`app__sidebar ${isLeftSidebarOpen ? 'app__sidebar--open' : ''}`}>
 					<LocationsList 
-						locations={testLocations} 
+						locations={testLocations}
+						filteredLocations={filteredAndSortedLocations}
 						onLocationClick={handleLocationFromList}
+						searchQuery={searchQuery}
+						onSearchQueryChange={setSearchQuery}
+						selectedCategories={selectedCategories}
+						onCategoriesChange={setSelectedCategories}
+						sortOption={sortOption}
+						onSortOptionChange={setSortOption}
 					/>
 
 					<button className="app__sidebar-toggler" onClick={handleToggleLeftSidebar}>
@@ -136,9 +189,10 @@ function App(): React.ReactElement {
 
 				<div className="app__content">
 					<Map 
-						locations={testLocations}
+						locations={filteredAndSortedLocations}
 						onLocationClick={handleLocationSelect}
 						centerMapLocation={centerMapLocation}
+						onMapClick={handleMapClick}
 					/>
 				</div>
 

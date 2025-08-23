@@ -3,6 +3,7 @@ import L from 'leaflet';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import MapController from './MapController.tsx';
+import MapClickHandler from './MapClickHandler.tsx';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import './Map.scss';
@@ -12,9 +13,10 @@ interface MapProps {
 	locations: Location[];
 	onLocationClick: (location: Location) => void;
 	centerMapLocation: Location | null;
+	onMapClick?: () => void;
 }
 
-function Map({ locations, onLocationClick, centerMapLocation }: MapProps): React.ReactElement {
+function Map({ locations, onLocationClick, centerMapLocation, onMapClick }: MapProps): React.ReactElement {
 	const center: number[] = [50.4501, 30.5234];
 	const cityBounds: L.LatLngBoundsExpression = [
 		[50.2133, 30.2394],
@@ -61,6 +63,7 @@ function Map({ locations, onLocationClick, centerMapLocation }: MapProps): React
 			/>
 
 			<MapController selectedLocation={centerMapLocation} />
+			{onMapClick && <MapClickHandler onMapClick={onMapClick} />}
 
 			<MarkerClusterGroup
 				chunkedLoading
