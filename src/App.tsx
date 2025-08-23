@@ -8,6 +8,7 @@ import './App.scss';
 
 import leftArrow from '../src/assets/icons/angle-left-icon.svg';
 import rightArrow from '../src/assets/icons/angle-right-icon.svg';
+import Map from './components/map/Map.tsx';
 
 function App(): React.ReactElement {
 	const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
@@ -32,18 +33,7 @@ function App(): React.ReactElement {
 				</div>
 
 				<div className="app__content">
-					<MapContainer
-						center={[50.4501, 30.5234]} // центр Києва
-						zoom={12}
-						style={{ height: "100vh", width: "100%" }}
-					>
-						<TileLayer
-							url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-							minZoom={10}
-							maxZoom={16}
-							attribution="&copy; Local Tiles"
-						/>
-					</MapContainer>
+					<Map />
 				</div>
 
 				<div className={`app__sidebar app__sidebar--right ${isRightSidebarOpen ? 'app__sidebar--open' : ''}`}>
