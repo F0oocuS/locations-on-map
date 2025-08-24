@@ -21,16 +21,6 @@ function LocationsList({
 		return allPossibleCategories;
 	}, []);
 
-	const getCategoryIcon = (category: string): string => {
-		switch (category) {
-			case 'food': return '🍽️';
-			case 'park': return '🌳';
-			case 'museum': return '🏛️';
-			case 'shop': return '🛍️';
-			default: return '📍';
-		}
-	};
-
 	const getCategoryName = (category: string): string => {
 		switch (category) {
 			case 'food': return 'Їжа';

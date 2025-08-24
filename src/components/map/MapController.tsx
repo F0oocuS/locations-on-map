@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
+import { MapService } from '../../core/services/map.service';
 import { MapControllerProps } from '../../core/interfaces/props/MapControllerProps';
 
 function MapController({ selectedLocation }: MapControllerProps) {
@@ -7,16 +8,10 @@ function MapController({ selectedLocation }: MapControllerProps) {
 
 	useEffect(() => {
 		if (selectedLocation) {
-			// Центруємо карту на вибраній локації з анімацією
-			map.flyTo(
-				[selectedLocation.coords.lat, selectedLocation.coords.lon], 
-				16, // зум рівень для детального перегляду
-				{
-					animate: true,
-					duration: .5,
-					easeLinearity: 0.1
-				}
-			);
+			MapService.flyToLocation(map, {
+				lat: selectedLocation.coords.lat,
+				lon: selectedLocation.coords.lon
+			});
 		}
 	}, [selectedLocation, map]);
 
