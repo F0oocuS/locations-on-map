@@ -13,18 +13,7 @@ import MapMoveHandler from './MapMoveHandler.tsx';
 
 import Location from '../../core/interfaces/Location.tsx';
 import Coordinate from '../../core/interfaces/Coordinate.tsx';
-
-interface MapProps {
-	locations: Location[];
-	onLocationClick: (location: Location) => void;
-	centerMapLocation: Location | null;
-	onMapClick?: (coordinates?: Coordinate) => void;
-	onExportGeoJSON?: () => void;
-	onImportGeoJSON?: () => void;
-	mapCenter?: [number, number];
-	mapZoom?: number;
-	onMapMove?: (center: [number, number], zoom: number) => void;
-}
+import { MapProps } from '../../core/interfaces/props/MapProps';
 
 function Map({ locations, onLocationClick, centerMapLocation, onMapClick, onExportGeoJSON, onImportGeoJSON, mapCenter = [50.4501, 30.5234], mapZoom = 12, onMapMove }: MapProps): React.ReactElement {
 	const cityBounds: L.LatLngBoundsExpression = [

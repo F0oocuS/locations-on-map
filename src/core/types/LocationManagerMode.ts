@@ -1,0 +1,1 @@
+export type LocationManagerMode = 'list' | 'create' | 'edit' | 'view';

@@ -1,20 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Location from '../../core/interfaces/Location.tsx';
-import Coordinate from '../../core/interfaces/Coordinate.tsx';
 import LocationForm from '../location-form/LocationForm.tsx';
+import { LocationManagerProps } from '../../core/interfaces/props/LocationManagerProps';
+import { LocationManagerMode } from '../../core/types/LocationManagerMode';
 import './LocationManager.scss';
-
-interface LocationManagerProps {
-	selectedLocation: Location | null;
-	onLocationUpdate: (location: Location) => void;
-	onLocationDelete: (locationId: string) => void;
-	onLocationCreate: (location: Omit<Location, 'id'>) => void;
-	onClose: () => void;
-	mapClickCoordinates: Coordinate | null;
-	editMode: boolean;
-}
-
-type LocationManagerMode = 'list' | 'create' | 'edit' | 'view';
 
 const LocationManager: React.FC<LocationManagerProps> = ({
 	selectedLocation,

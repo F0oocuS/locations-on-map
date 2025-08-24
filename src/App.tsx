@@ -2,7 +2,8 @@ import "leaflet/dist/leaflet.css";
 import React, { useState, useMemo, useEffect } from 'react';
 
 import Map from './components/map/Map.tsx';
-import LocationsList, { SortOption } from './components/locations-list/LocationsList.tsx';
+import LocationsList from './components/locations-list/LocationsList.tsx';
+import { SortOption } from './core/types/SortOption';
 import LocationDetails from './components/location-details/LocationDetails.tsx';
 import LocationManager from './components/location-manager/LocationManager.tsx';
 import ConfirmationDialog from './components/confirmation-dialog/ConfirmationDialog.tsx';

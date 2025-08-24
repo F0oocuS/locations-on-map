@@ -1,9 +1,6 @@
 import { useMapEvents } from 'react-leaflet';
 import Coordinate from '../../core/interfaces/Coordinate.tsx';
-
-interface MapClickHandlerProps {
-	onMapClick: (coordinates?: Coordinate) => void;
-}
+import { MapClickHandlerProps } from '../../core/interfaces/props/MapClickHandlerProps';
 
 function MapClickHandler({ onMapClick }: MapClickHandlerProps) {
 	useMapEvents({

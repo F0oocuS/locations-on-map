@@ -1,13 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import Location from '../../core/interfaces/Location.tsx';
+import { LocationDetailsProps } from '../../core/interfaces/props/LocationDetailsProps';
 import './LocationDetails.scss';
-
-interface LocationDetailsProps {
-	location: Location | null;
-	onClose: () => void;
-	onEdit: (location: Location) => void;
-	onDelete: (location: Location) => void;
-}
 
 function LocationDetails({ location, onClose, onEdit, onDelete }: LocationDetailsProps): React.ReactElement | null {
 	const detailsRef = useRef<HTMLDivElement>(null);

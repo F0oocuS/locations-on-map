@@ -1,10 +1,6 @@
 import { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
-import Location from '../../core/interfaces/Location.tsx';
-
-interface MapControllerProps {
-	selectedLocation: Location | null;
-}
+import { MapControllerProps } from '../../core/interfaces/props/MapControllerProps';
 
 function MapController({ selectedLocation }: MapControllerProps) {
 	const map = useMap();

@@ -2,15 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Location from '../../core/interfaces/Location.tsx';
 import Coordinate from '../../core/interfaces/Coordinate.tsx';
 import { isCoordinatesInBounds, MAP_BOUNDS } from '../../core/constants/mapBounds.ts';
+import { LocationFormProps } from '../../core/interfaces/props/LocationFormProps';
 import './LocationForm.scss';
-
-interface LocationFormProps {
-	mode: 'create' | 'edit';
-	location?: Location | null;
-	mapClickCoordinates?: Coordinate | null;
-	onSubmit: (locationData: Omit<Location, 'id'> | Location) => void;
-	onCancel: () => void;
-}
 
 const LocationForm: React.FC<LocationFormProps> = ({
 	mode,

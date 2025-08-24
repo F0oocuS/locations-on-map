@@ -1,16 +1,6 @@
 import React from 'react';
+import { ConfirmationDialogProps } from '../../core/interfaces/props/ConfirmationDialogProps';
 import './ConfirmationDialog.scss';
-
-interface ConfirmationDialogProps {
-	isOpen: boolean;
-	title: string;
-	message: string;
-	confirmText?: string;
-	cancelText?: string;
-	onConfirm: () => void;
-	onCancel: () => void;
-	type?: 'default' | 'danger';
-}
 
 function ConfirmationDialog({
 	isOpen,

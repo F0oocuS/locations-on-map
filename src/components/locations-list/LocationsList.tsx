@@ -1,20 +1,8 @@
 import React, { useMemo } from 'react';
 import Location from '../../core/interfaces/Location.tsx';
+import { SortOption } from '../../core/types/SortOption';
+import { LocationsListProps } from '../../core/interfaces/props/LocationsListProps';
 import './LocationsList.scss';
-
-export type SortOption = 'name-asc' | 'name-desc' | 'date-asc' | 'date-desc';
-
-interface LocationsListProps {
-	locations: Location[];
-	filteredLocations: Location[];
-	onLocationClick: (location: Location) => void;
-	searchQuery: string;
-	onSearchQueryChange: (query: string) => void;
-	selectedCategories: string[];
-	onCategoriesChange: (categories: string[]) => void;
-	sortOption: SortOption;
-	onSortOptionChange: (option: SortOption) => void;
-}
 
 function LocationsList({ 
 	locations, 

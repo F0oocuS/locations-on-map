@@ -1,8 +1,5 @@
 import { useMapEvents } from 'react-leaflet';
-
-interface MapMoveHandlerProps {
-	onMapMove: (center: [number, number], zoom: number) => void;
-}
+import { MapMoveHandlerProps } from '../../core/interfaces/props/MapMoveHandlerProps';
 
 function MapMoveHandler({ onMapMove }: MapMoveHandlerProps) {
 	useMapEvents({
