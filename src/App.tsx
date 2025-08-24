@@ -1,8 +1,9 @@
-import "leaflet/dist/leaflet.css";
+import 'leaflet/dist/leaflet.css';
 import React, { useState, useMemo, useEffect } from 'react';
 
 import Map from './components/map/Map.tsx';
-import LocationsList from './components/locations-list/LocationsList.tsx';
+import LocationList from './components/location-list/LocationList.tsx';
+import LocationFilters from './components/location-filters/LocationFilters.tsx';
 import { SortOption } from './core/types/SortOption';
 import LocationDetails from './components/location-details/LocationDetails.tsx';
 import LocationManager from './components/location-manager/LocationManager.tsx';
@@ -10,11 +11,14 @@ import ConfirmationDialog from './components/confirmation-dialog/ConfirmationDia
 import Location from './core/interfaces/Location.tsx';
 import Coordinate from './core/interfaces/Coordinate.tsx';
 import { ApiService } from './core/services/api.service.ts';
+import { GeoJSONService } from './core/services/geojson.service';
+import { DialogService } from './core/services/dialog.service';
+import { LocationsService } from './core/services/locations.service';
 
 import './App.scss';
 
-import leftArrow from '../src/assets/icons/angle-left-icon.svg';
-import rightArrow from '../src/assets/icons/angle-right-icon.svg';
+import leftArrow from './assets/icons/angle-left-icon.svg';
+import rightArrow from './assets/icons/angle-right-icon.svg';
 
 function App(): React.ReactElement {
 	const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
@@ -34,8 +38,7 @@ function App(): React.ReactElement {
 		const saved = localStorage.getItem('locations-map-zoom');
 		return saved ? JSON.parse(saved) : 12;
 	});
-	
-	// Стани для фільтрації
+
 	const [searchQuery, setSearchQuery] = useState(() => {
 		const saved = localStorage.getItem('locations-search-query');
 		return saved ? JSON.parse(saved) : '';
@@ -51,7 +54,6 @@ function App(): React.ReactElement {
 
 	const [locations, setLocations] = useState<Location[]>([]);
 
-	// Завантаження локацій з API
 	useEffect(() => {
 		const fetchLocations = async () => {
 			try {
@@ -61,8 +63,8 @@ function App(): React.ReactElement {
 				setLocations(fetchedLocations);
 			} catch (err) {
 				console.error('Error fetching locations:', err);
-				setError('Помилка завантаження локацій. Перевірте з\'єднання з сервером.');
-				setLocations([]); // Порожній масив, якщо сервер не відповідає
+				setError("Помилка завантаження локацій. Перевірте з'єднання з сервером.");
+				setLocations([]);
 			} finally {
 				setLoading(false);
 			}
@@ -71,7 +73,6 @@ function App(): React.ReactElement {
 		fetchLocations();
 	}, []);
 
-	// Збереження фільтрів та сортування в localStorage
 	useEffect(() => {
 		localStorage.setItem('locations-search-query', JSON.stringify(searchQuery));
 	}, [searchQuery]);
@@ -84,7 +85,6 @@ function App(): React.ReactElement {
 		localStorage.setItem('locations-sort-option', JSON.stringify(sortOption));
 	}, [sortOption]);
 
-	// Збереження центру та зуму карти в localStorage
 	useEffect(() => {
 		localStorage.setItem('locations-map-center', JSON.stringify(mapCenter));
 	}, [mapCenter]);
@@ -93,41 +93,8 @@ function App(): React.ReactElement {
 		localStorage.setItem('locations-map-zoom', JSON.stringify(mapZoom));
 	}, [mapZoom]);
 
-	// Логіка фільтрації та сортування
 	const filteredAndSortedLocations = useMemo(() => {
-		let result = locations;
-
-		// Фільтрація за категоріями
-		if (selectedCategories.length > 0) {
-			result = result.filter(location => selectedCategories.includes(location.category));
-		}
-
-		// Фільтрація за пошуковим запитом
-		if (searchQuery.trim()) {
-			result = result.filter(location =>
-				location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				location.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				location.category.toLowerCase().includes(searchQuery.toLowerCase())
-			);
-		}
-
-		// Сортування
-		result = [...result].sort((a, b) => {
-			switch (sortOption) {
-				case 'name-asc':
-					return a.name.localeCompare(b.name, 'uk');
-				case 'name-desc':
-					return b.name.localeCompare(a.name, 'uk');
-				case 'date-asc':
-					return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-				case 'date-desc':
-					return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-				default:
-					return 0;
-			}
-		});
-
-		return result;
+		return LocationsService.filterAndSortLocations(locations, searchQuery, selectedCategories, sortOption);
 	}, [locations, searchQuery, selectedCategories, sortOption]);
 
 	const handleToggleLeftSidebar = () => {
@@ -157,11 +124,10 @@ function App(): React.ReactElement {
 		}
 	};
 
-	// Обробники для LocationManager
 	const handleLocationCreate = async (locationData: Omit<Location, 'id'>) => {
 		try {
 			const newLocation = await ApiService.createLocation(locationData);
-			setLocations(prevLocations => [...prevLocations, newLocation]);
+			setLocations((prevLocations) => [...prevLocations, newLocation]);
 			setMapClickCoordinates(null);
 		} catch (err) {
 			console.error('Error creating location:', err);
@@ -172,11 +138,7 @@ function App(): React.ReactElement {
 	const handleLocationUpdate = async (updatedLocation: Location) => {
 		try {
 			const updated = await ApiService.updateLocation(updatedLocation.id, updatedLocation);
-			setLocations(prevLocations => 
-				prevLocations.map(location => 
-					location.id === updated.id ? updated : location
-				)
-			);
+			setLocations((prevLocations) => prevLocations.map((location) => (location.id === updated.id ? updated : location)));
 			setSelectedLocation(updated);
 		} catch (err) {
 			console.error('Error updating location:', err);
@@ -188,9 +150,7 @@ function App(): React.ReactElement {
 	const handleLocationDelete = async (locationId: string) => {
 		try {
 			await ApiService.deleteLocation(locationId);
-			setLocations(prevLocations => 
-				prevLocations.filter(location => location.id !== locationId)
-			);
+			setLocations((prevLocations) => prevLocations.filter((location) => location.id !== locationId));
 			setSelectedLocation(null);
 		} catch (err) {
 			console.error('Error deleting location:', err);
@@ -231,33 +191,7 @@ function App(): React.ReactElement {
 	};
 
 	const handleExportGeoJSON = () => {
-		const geoJSON = {
-			type: "FeatureCollection",
-			features: locations.map(location => ({
-				type: "Feature",
-				geometry: {
-					type: "Point",
-					coordinates: [location.coords.lon, location.coords.lat]
-				},
-				properties: {
-					id: location.id,
-					name: location.name,
-					category: location.category,
-					description: location.description,
-					createdAt: location.createdAt
-				}
-			}))
-		};
-
-		const dataStr = JSON.stringify(geoJSON, null, 2);
-		const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-		
-		const exportFileDefaultName = `locations-${new Date().toISOString().split('T')[0]}.geojson`;
-		
-		const linkElement = document.createElement('a');
-		linkElement.setAttribute('href', dataUri);
-		linkElement.setAttribute('download', exportFileDefaultName);
-		linkElement.click();
+		GeoJSONService.downloadGeoJSONFile(locations);
 	};
 
 	const handleImportGeoJSON = () => {
@@ -268,27 +202,9 @@ function App(): React.ReactElement {
 			const file = (event.target as HTMLInputElement).files?.[0];
 			if (file) {
 				try {
-					const text = await file.text();
-					const geoJSON = JSON.parse(text);
-					
-					if (geoJSON.type === 'FeatureCollection' && Array.isArray(geoJSON.features)) {
-						const importedLocations: Location[] = geoJSON.features.map((feature: any, index: number) => ({
-							id: `imported-${Date.now()}-${index}`,
-							name: feature.properties.name || 'Imported Location',
-							category: feature.properties.category || 'other',
-							description: feature.properties.description || '',
-							createdAt: feature.properties.createdAt || new Date().toISOString(),
-							coords: {
-								lat: feature.geometry.coordinates[1],
-								lon: feature.geometry.coordinates[0]
-							}
-						}));
-
-						setLocations(prevLocations => [...prevLocations, ...importedLocations]);
-						setError(null);
-					} else {
-						setError('Невірний формат GeoJSON файлу');
-					}
+					const importedLocations = await GeoJSONService.processImportFile(file);
+					setLocations((prevLocations) => [...prevLocations, ...importedLocations]);
+					setError(null);
 				} catch (err) {
 					console.error('Error importing GeoJSON:', err);
 					setError('Помилка імпорту GeoJSON файлу');
@@ -318,25 +234,24 @@ function App(): React.ReactElement {
 			)}
 			<div className="app__container">
 				<div className={`app__sidebar ${isLeftSidebarOpen ? 'app__sidebar--open' : ''}`}>
-					<LocationsList 
-						locations={locations}
-						filteredLocations={filteredAndSortedLocations}
-						onLocationClick={handleLocationFromList}
+					<LocationFilters
 						searchQuery={searchQuery}
 						onSearchQueryChange={setSearchQuery}
 						selectedCategories={selectedCategories}
 						onCategoriesChange={setSelectedCategories}
 						sortOption={sortOption}
 						onSortOptionChange={setSortOption}
+						locationsCount={filteredAndSortedLocations.length}
 					/>
+					<LocationList locations={filteredAndSortedLocations} onLocationClick={handleLocationFromList} />
 
 					<button className="app__sidebar-toggler" onClick={handleToggleLeftSidebar}>
-						<img src={ rightArrow } alt="Right arrow" className="app__toggler-icon"/>
+						<img src={rightArrow} alt="Right arrow" className="app__toggler-icon" />
 					</button>
 				</div>
 
 				<div className="app__content">
-					<Map 
+					<Map
 						locations={filteredAndSortedLocations}
 						onLocationClick={handleLocationSelect}
 						centerMapLocation={centerMapLocation}
@@ -361,28 +276,21 @@ function App(): React.ReactElement {
 					/>
 
 					<button className="app__sidebar-toggler app__sidebar-toggler--right" onClick={handleToggleRightSidebar}>
-						<img src={ leftArrow } alt="Left arrow" className="app__toggler-icon"/>
+						<img src={leftArrow} alt="Left arrow" className="app__toggler-icon" />
 					</button>
 				</div>
 			</div>
 
-			<LocationDetails 
-				location={selectedLocation}
-				onClose={handleLocationClose}
-				onEdit={handleLocationEdit}
-				onDelete={handleLocationDeleteRequest}
-			/>
+			<LocationDetails location={selectedLocation} onClose={handleLocationClose} onEdit={handleLocationEdit} onDelete={handleLocationDeleteRequest} />
 
-			<ConfirmationDialog
-				isOpen={!!locationToDelete}
-				title="Підтвердження видалення"
-				message={`Ви впевнені, що хочете видалити локацію "${locationToDelete?.name}"? Цю дію не можна буде скасувати.`}
-				confirmText="Видалити"
-				cancelText="Скасувати"
-				type="danger"
-				onConfirm={handleLocationDeleteConfirm}
-				onCancel={handleLocationDeleteCancel}
-			/>
+			{locationToDelete && (
+				<ConfirmationDialog
+					isOpen={!!locationToDelete}
+					{...DialogService.createDeleteConfirmationConfig(locationToDelete.name)}
+					onConfirm={handleLocationDeleteConfirm}
+					onCancel={handleLocationDeleteCancel}
+				/>
+			)}
 		</div>
 	);
 }

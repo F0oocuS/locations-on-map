@@ -49,11 +49,6 @@
 		gap: 5px;
 	}
 
-	&__icon {
-		font-size: 2rem;
-		flex-shrink: 0;
-	}
-
 	&__name {
 		font-size: 20px;
 		line-height: 1;
@@ -84,10 +79,6 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-
-		span {
-			color: #6c757d;
-		}
 	}
 
 	&__actions {

@@ -11,11 +11,19 @@ import MapClickHandler from './MapClickHandler.tsx';
 import MapMoveHandler from './MapMoveHandler.tsx';
 import { MapService } from '../../core/services/map.service';
 
-import Location from '../../core/interfaces/Location.tsx';
-import Coordinate from '../../core/interfaces/Coordinate.tsx';
 import { MapProps } from '../../core/interfaces/props/MapProps';
 
-function Map({ locations, onLocationClick, centerMapLocation, onMapClick, onExportGeoJSON, onImportGeoJSON, mapCenter = MapService.DEFAULT_CENTER, mapZoom = MapService.DEFAULT_ZOOM, onMapMove }: MapProps): React.ReactElement {
+function Map({
+	locations,
+	onLocationClick,
+	centerMapLocation,
+	onMapClick,
+	onExportGeoJSON,
+	onImportGeoJSON,
+	mapCenter = MapService.DEFAULT_CENTER,
+	mapZoom = MapService.DEFAULT_ZOOM,
+	onMapMove,
+}: MapProps): React.ReactElement {
 	const customIcon = MapService.createCustomIcon();
 	const mapContainerConfig = MapService.getMapContainerConfig(mapCenter, mapZoom);
 
@@ -23,20 +31,12 @@ function Map({ locations, onLocationClick, centerMapLocation, onMapClick, onExpo
 		<div className="map-wrapper">
 			<div className="map__controls">
 				{onExportGeoJSON && (
-					<button 
-						className="map__btn map__btn--export"
-						onClick={onExportGeoJSON}
-						title="Export GeoJSON"
-					>
+					<button className="map__btn map__btn--export" onClick={onExportGeoJSON} title="Export GeoJSON">
 						Export GeoJSON
 					</button>
 				)}
 				{onImportGeoJSON && (
-					<button 
-						className="map__btn map__btn--import"
-						onClick={onImportGeoJSON}
-						title="Import GeoJSON"
-					>
+					<button className="map__btn map__btn--import" onClick={onImportGeoJSON} title="Import GeoJSON">
 						Import GeoJSON
 					</button>
 				)}
@@ -48,11 +48,7 @@ function Map({ locations, onLocationClick, centerMapLocation, onMapClick, onExpo
 				maxBoundsViscosity={mapContainerConfig.maxBoundsViscosity}
 				style={mapContainerConfig.style}
 			>
-				<TileLayer
-					url={MapService.TILE_LAYER_CONFIG.url}
-					minZoom={MapService.TILE_LAYER_CONFIG.minZoom}
-					maxZoom={MapService.TILE_LAYER_CONFIG.maxZoom}
-				/>
+				<TileLayer url={MapService.TILE_LAYER_CONFIG.url} minZoom={MapService.TILE_LAYER_CONFIG.minZoom} maxZoom={MapService.TILE_LAYER_CONFIG.maxZoom} />
 
 				<MapController selectedLocation={centerMapLocation} />
 				{onMapClick && <MapClickHandler onMapClick={onMapClick} />}
@@ -68,12 +64,12 @@ function Map({ locations, onLocationClick, centerMapLocation, onMapClick, onExpo
 					iconCreateFunction={MapService.createClusterIcon}
 				>
 					{locations.map((location) => (
-						<Marker 
+						<Marker
 							key={location.id}
-							position={[location.coords.lat, location.coords.lon]} 
+							position={[location.coords.lat, location.coords.lon]}
 							icon={customIcon}
 							eventHandlers={{
-								click: () => onLocationClick(location)
+								click: () => onLocationClick(location),
 							}}
 						/>
 					))}

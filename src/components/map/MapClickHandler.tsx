@@ -7,7 +7,7 @@ function MapClickHandler({ onMapClick }: MapClickHandlerProps) {
 		click: (event) => {
 			const coordinates: Coordinate = {
 				lat: event.latlng.lat,
-				lon: event.latlng.lng
+				lon: event.latlng.lng,
 			};
 			onMapClick(coordinates);
 		},

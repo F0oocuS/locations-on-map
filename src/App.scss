@@ -53,6 +53,8 @@
 		position: relative;
 		background: #fff;
 		transition: .3s ease all;
+		display: flex;
+		flex-direction: column;
 	}
 
 	&__sidebar-toggler {

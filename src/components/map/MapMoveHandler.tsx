@@ -14,7 +14,7 @@ function MapMoveHandler({ onMapMove }: MapMoveHandlerProps) {
 			const center = map.getCenter();
 			const zoom = map.getZoom();
 			onMapMove([center.lat, center.lng], zoom);
-		}
+		},
 	});
 
 	return null;

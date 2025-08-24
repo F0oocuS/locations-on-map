@@ -10,7 +10,7 @@ function MapController({ selectedLocation }: MapControllerProps) {
 		if (selectedLocation) {
 			MapService.flyToLocation(map, {
 				lat: selectedLocation.coords.lat,
-				lon: selectedLocation.coords.lon
+				lon: selectedLocation.coords.lon,
 			});
 		}
 	}, [selectedLocation, map]);
