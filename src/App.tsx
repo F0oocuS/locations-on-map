@@ -5,6 +5,7 @@ import Map from './components/map/Map.tsx';
 import LocationsList, { SortOption } from './components/locations-list/LocationsList.tsx';
 import LocationDetails from './components/location-details/LocationDetails.tsx';
 import LocationManager from './components/location-manager/LocationManager.tsx';
+import ConfirmationDialog from './components/confirmation-dialog/ConfirmationDialog.tsx';
 import Location from './core/interfaces/Location.tsx';
 import Coordinate from './core/interfaces/Coordinate.tsx';
 import { ApiService } from './core/services/api.service.ts';
@@ -22,11 +23,30 @@ function App(): React.ReactElement {
 	const [mapClickCoordinates, setMapClickCoordinates] = useState<Coordinate | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
+	const [locationToDelete, setLocationToDelete] = useState<Location | null>(null);
+	const [isEditMode, setIsEditMode] = useState(false);
+	const [mapCenter, setMapCenter] = useState(() => {
+		const saved = localStorage.getItem('locations-map-center');
+		return saved ? JSON.parse(saved) : [50.4501, 30.5234];
+	});
+	const [mapZoom, setMapZoom] = useState(() => {
+		const saved = localStorage.getItem('locations-map-zoom');
+		return saved ? JSON.parse(saved) : 12;
+	});
 	
 	// Стани для фільтрації
-	const [searchQuery, setSearchQuery] = useState('');
-	const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-	const [sortOption, setSortOption] = useState<SortOption>('name-asc');
+	const [searchQuery, setSearchQuery] = useState(() => {
+		const saved = localStorage.getItem('locations-search-query');
+		return saved ? JSON.parse(saved) : '';
+	});
+	const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
+		const saved = localStorage.getItem('locations-selected-categories');
+		return saved ? JSON.parse(saved) : [];
+	});
+	const [sortOption, setSortOption] = useState<SortOption>(() => {
+		const saved = localStorage.getItem('locations-sort-option');
+		return saved ? JSON.parse(saved) : 'name-asc';
+	});
 
 	const [locations, setLocations] = useState<Location[]>([]);
 
@@ -49,6 +69,28 @@ function App(): React.ReactElement {
 
 		fetchLocations();
 	}, []);
+
+	// Збереження фільтрів та сортування в localStorage
+	useEffect(() => {
+		localStorage.setItem('locations-search-query', JSON.stringify(searchQuery));
+	}, [searchQuery]);
+
+	useEffect(() => {
+		localStorage.setItem('locations-selected-categories', JSON.stringify(selectedCategories));
+	}, [selectedCategories]);
+
+	useEffect(() => {
+		localStorage.setItem('locations-sort-option', JSON.stringify(sortOption));
+	}, [sortOption]);
+
+	// Збереження центру та зуму карти в localStorage
+	useEffect(() => {
+		localStorage.setItem('locations-map-center', JSON.stringify(mapCenter));
+	}, [mapCenter]);
+
+	useEffect(() => {
+		localStorage.setItem('locations-map-zoom', JSON.stringify(mapZoom));
+	}, [mapZoom]);
 
 	// Логіка фільтрації та сортування
 	const filteredAndSortedLocations = useMemo(() => {
@@ -109,7 +151,6 @@ function App(): React.ReactElement {
 	};
 
 	const handleMapClick = (coordinates?: Coordinate) => {
-		setSelectedLocation(null);
 		if (coordinates) {
 			setMapClickCoordinates(coordinates);
 		}
@@ -140,6 +181,7 @@ function App(): React.ReactElement {
 			console.error('Error updating location:', err);
 			setError('Помилка оновлення локації');
 		}
+		setIsEditMode(false);
 	};
 
 	const handleLocationDelete = async (locationId: string) => {
@@ -158,6 +200,33 @@ function App(): React.ReactElement {
 	const handleLocationManagerClose = () => {
 		setSelectedLocation(null);
 		setMapClickCoordinates(null);
+		setIsEditMode(false);
+	};
+
+	const handleLocationEdit = (location: Location) => {
+		setSelectedLocation(location);
+		setIsEditMode(true);
+		setIsRightSidebarOpen(true);
+	};
+
+	const handleLocationDeleteRequest = (location: Location) => {
+		setLocationToDelete(location);
+	};
+
+	const handleLocationDeleteConfirm = async () => {
+		if (locationToDelete) {
+			await handleLocationDelete(locationToDelete.id);
+			setLocationToDelete(null);
+		}
+	};
+
+	const handleLocationDeleteCancel = () => {
+		setLocationToDelete(null);
+	};
+
+	const handleMapMove = (center: [number, number], zoom: number) => {
+		setMapCenter(center);
+		setMapZoom(zoom);
 	};
 
 	const handleExportGeoJSON = () => {
@@ -188,6 +257,44 @@ function App(): React.ReactElement {
 		linkElement.setAttribute('href', dataUri);
 		linkElement.setAttribute('download', exportFileDefaultName);
 		linkElement.click();
+	};
+
+	const handleImportGeoJSON = () => {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.geojson,.json';
+		input.onchange = async (event) => {
+			const file = (event.target as HTMLInputElement).files?.[0];
+			if (file) {
+				try {
+					const text = await file.text();
+					const geoJSON = JSON.parse(text);
+					
+					if (geoJSON.type === 'FeatureCollection' && Array.isArray(geoJSON.features)) {
+						const importedLocations: Location[] = geoJSON.features.map((feature: any, index: number) => ({
+							id: `imported-${Date.now()}-${index}`,
+							name: feature.properties.name || 'Imported Location',
+							category: feature.properties.category || 'other',
+							description: feature.properties.description || '',
+							createdAt: feature.properties.createdAt || new Date().toISOString(),
+							coords: {
+								lat: feature.geometry.coordinates[1],
+								lon: feature.geometry.coordinates[0]
+							}
+						}));
+
+						setLocations(prevLocations => [...prevLocations, ...importedLocations]);
+						setError(null);
+					} else {
+						setError('Невірний формат GeoJSON файлу');
+					}
+				} catch (err) {
+					console.error('Error importing GeoJSON:', err);
+					setError('Помилка імпорту GeoJSON файлу');
+				}
+			}
+		};
+		input.click();
 	};
 
 	if (loading) {
@@ -234,6 +341,10 @@ function App(): React.ReactElement {
 						centerMapLocation={centerMapLocation}
 						onMapClick={handleMapClick}
 						onExportGeoJSON={handleExportGeoJSON}
+						onImportGeoJSON={handleImportGeoJSON}
+						mapCenter={mapCenter}
+						mapZoom={mapZoom}
+						onMapMove={handleMapMove}
 					/>
 				</div>
 
@@ -245,6 +356,7 @@ function App(): React.ReactElement {
 						onLocationCreate={handleLocationCreate}
 						onClose={handleLocationManagerClose}
 						mapClickCoordinates={mapClickCoordinates}
+						editMode={isEditMode}
 					/>
 
 					<button className="app__sidebar-toggler app__sidebar-toggler--right" onClick={handleToggleRightSidebar}>
@@ -256,6 +368,19 @@ function App(): React.ReactElement {
 			<LocationDetails 
 				location={selectedLocation}
 				onClose={handleLocationClose}
+				onEdit={handleLocationEdit}
+				onDelete={handleLocationDeleteRequest}
+			/>
+
+			<ConfirmationDialog
+				isOpen={!!locationToDelete}
+				title="Підтвердження видалення"
+				message={`Ви впевнені, що хочете видалити локацію "${locationToDelete?.name}"? Цю дію не можна буде скасувати.`}
+				confirmText="Видалити"
+				cancelText="Скасувати"
+				type="danger"
+				onConfirm={handleLocationDeleteConfirm}
+				onCancel={handleLocationDeleteCancel}
 			/>
 		</div>
 	);

@@ -5,26 +5,13 @@ import './LocationDetails.scss';
 interface LocationDetailsProps {
 	location: Location | null;
 	onClose: () => void;
+	onEdit: (location: Location) => void;
+	onDelete: (location: Location) => void;
 }
 
-function LocationDetails({ location, onClose }: LocationDetailsProps): React.ReactElement | null {
+function LocationDetails({ location, onClose, onEdit, onDelete }: LocationDetailsProps): React.ReactElement | null {
 	const detailsRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (detailsRef.current && !detailsRef.current.contains(event.target as Node)) {
-				onClose();
-			}
-		};
-
-		if (location) {
-			document.addEventListener('mousedown', handleClickOutside);
-		}
-
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, [location, onClose]);
 
 	if (!location) return null;
 
@@ -83,6 +70,21 @@ function LocationDetails({ location, onClose }: LocationDetailsProps): React.Rea
 							<strong>Додано:</strong>
 							<span>{formatDate(location.createdAt)}</span>
 						</div>
+					</div>
+
+					<div className="location-details__actions">
+						<button 
+							className="location-details__btn location-details__btn--edit"
+							onClick={() => onEdit(location)}
+						>
+							Редагувати
+						</button>
+						<button 
+							className="location-details__btn location-details__btn--delete"
+							onClick={() => onDelete(location)}
+						>
+							Видалити
+						</button>
 					</div>
 				</div>
 			</div>

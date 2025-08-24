@@ -9,6 +9,7 @@ import './Map.scss';
 
 import MapController from './MapController.tsx';
 import MapClickHandler from './MapClickHandler.tsx';
+import MapMoveHandler from './MapMoveHandler.tsx';
 
 import Location from '../../core/interfaces/Location.tsx';
 import Coordinate from '../../core/interfaces/Coordinate.tsx';
@@ -19,10 +20,13 @@ interface MapProps {
 	centerMapLocation: Location | null;
 	onMapClick?: (coordinates?: Coordinate) => void;
 	onExportGeoJSON?: () => void;
+	onImportGeoJSON?: () => void;
+	mapCenter?: [number, number];
+	mapZoom?: number;
+	onMapMove?: (center: [number, number], zoom: number) => void;
 }
 
-function Map({ locations, onLocationClick, centerMapLocation, onMapClick, onExportGeoJSON }: MapProps): React.ReactElement {
-	const center: number[] = [50.4501, 30.5234];
+function Map({ locations, onLocationClick, centerMapLocation, onMapClick, onExportGeoJSON, onImportGeoJSON, mapCenter = [50.4501, 30.5234], mapZoom = 12, onMapMove }: MapProps): React.ReactElement {
 	const cityBounds: L.LatLngBoundsExpression = [
 		[50.2133, 30.2394],
 		[50.5900, 30.8250]
@@ -55,18 +59,29 @@ function Map({ locations, onLocationClick, centerMapLocation, onMapClick, onExpo
 
 	return (
 		<div className="map-wrapper">
-			{onExportGeoJSON && (
-				<button 
-					className="map__export-btn"
-					onClick={onExportGeoJSON}
-					title="Завантажити GeoJSON"
-				>
-					📥 Завантажити GeoJSON
-				</button>
-			)}
+			<div className="map__controls">
+				{onExportGeoJSON && (
+					<button 
+						className="map__btn map__btn--export"
+						onClick={onExportGeoJSON}
+						title="Export GeoJSON"
+					>
+						Export GeoJSON
+					</button>
+				)}
+				{onImportGeoJSON && (
+					<button 
+						className="map__btn map__btn--import"
+						onClick={onImportGeoJSON}
+						title="Import GeoJSON"
+					>
+						Import GeoJSON
+					</button>
+				)}
+			</div>
 			<MapContainer
-				center={center} // центр Києва
-				zoom={12}
+				center={mapCenter} // центр Києва
+				zoom={mapZoom}
 				maxBounds={cityBounds}
 				maxBoundsViscosity={1.0}
 				style={{ height: "100vh", width: "100%" }}
@@ -79,6 +94,7 @@ function Map({ locations, onLocationClick, centerMapLocation, onMapClick, onExpo
 
 				<MapController selectedLocation={centerMapLocation} />
 				{onMapClick && <MapClickHandler onMapClick={onMapClick} />}
+				{onMapMove && <MapMoveHandler onMapMove={onMapMove} />}
 
 				<MarkerClusterGroup
 					chunkedLoading

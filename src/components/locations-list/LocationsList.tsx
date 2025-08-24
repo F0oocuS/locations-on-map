@@ -29,9 +29,9 @@ function LocationsList({
 }: LocationsListProps): React.ReactElement {
 
 	const categories = useMemo(() => {
-		const uniqueCategories = Array.from(new Set(locations.map(loc => loc.category)));
-		return uniqueCategories;
-	}, [locations]);
+		const allPossibleCategories = ['food', 'park', 'museum', 'shop', 'other'];
+		return allPossibleCategories;
+	}, []);
 
 	const getCategoryIcon = (category: string): string => {
 		switch (category) {
@@ -101,9 +101,6 @@ function LocationsList({
 									}`}
 									onClick={() => toggleCategory(category)}
 								>
-									<span className="locations-list__category-icon">
-										{getCategoryIcon(category)}
-									</span>
 									{getCategoryName(category)}
 								</button>
 							))}

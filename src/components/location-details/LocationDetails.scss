@@ -89,6 +89,43 @@
 			color: #6c757d;
 		}
 	}
+
+	&__actions {
+		display: flex;
+		gap: 10px;
+		margin-top: 15px;
+		padding-top: 15px;
+		border-top: 1px solid #e9ecef;
+	}
+
+	&__btn {
+		flex: 1;
+		padding: 8px 16px;
+		border: none;
+		border-radius: 4px;
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s ease;
+
+		&--edit {
+			background-color: #007bff;
+			color: white;
+
+			&:hover {
+				background-color: #0056b3;
+			}
+		}
+
+		&--delete {
+			background-color: #dc3545;
+			color: white;
+
+			&:hover {
+				background-color: #c82333;
+			}
+		}
+	}
 }
 
 @keyframes slideUp {
