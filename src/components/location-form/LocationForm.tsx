@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MAP_BOUNDS } from '../../core/constants/mapBounds.ts';
+import { MapService } from '../../core/services/map.service';
 import { LocationFormProps } from '../../core/interfaces/props/LocationFormProps';
 import { ValidationService } from '../../core/services/validation.service';
 import './LocationForm.scss';
@@ -146,9 +146,9 @@ const LocationForm: React.FC<LocationFormProps> = ({ mode, location, mapClickCoo
 						step="any"
 						value={formData.lat}
 						onChange={handleInputChange}
-						min={MAP_BOUNDS.minLat}
-						max={MAP_BOUNDS.maxLat}
-						placeholder={`${MAP_BOUNDS.minLat} - ${MAP_BOUNDS.maxLat}`}
+						min={MapService.MAP_BOUNDS.minLat}
+						max={MapService.MAP_BOUNDS.maxLat}
+						placeholder={`${MapService.MAP_BOUNDS.minLat} - ${MapService.MAP_BOUNDS.maxLat}`}
 						required
 					/>
 				</div>
@@ -165,9 +165,9 @@ const LocationForm: React.FC<LocationFormProps> = ({ mode, location, mapClickCoo
 						step="any"
 						value={formData.lon}
 						onChange={handleInputChange}
-						min={MAP_BOUNDS.minLon}
-						max={MAP_BOUNDS.maxLon}
-						placeholder={`${MAP_BOUNDS.minLon} - ${MAP_BOUNDS.maxLon}`}
+						min={MapService.MAP_BOUNDS.minLon}
+						max={MapService.MAP_BOUNDS.maxLon}
+						placeholder={`${MapService.MAP_BOUNDS.minLon} - ${MapService.MAP_BOUNDS.maxLon}`}
 						required
 					/>
 				</div>

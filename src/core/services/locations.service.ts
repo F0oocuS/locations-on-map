@@ -4,21 +4,6 @@ import { SortOption } from '../types/SortOption';
 export class LocationsService {
 	static readonly CATEGORIES = ['food', 'park', 'museum', 'shop', 'other'] as const;
 
-	static getCategoryIcon(category: string): string {
-		switch (category) {
-			case 'food':
-				return '🍽️';
-			case 'park':
-				return '🌳';
-			case 'museum':
-				return '🏛️';
-			case 'shop':
-				return '🛍️';
-			default:
-				return '📍';
-		}
-	}
-
 	static getCategoryName(category: string): string {
 		switch (category) {
 			case 'food':
@@ -57,9 +42,7 @@ export class LocationsService {
 		if (searchQuery.trim()) {
 			result = result.filter(
 				(location) =>
-					location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-					location.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-					location.category.toLowerCase().includes(searchQuery.toLowerCase()),
+					location.name.toLowerCase().includes(searchQuery.toLowerCase())
 			);
 		}
 

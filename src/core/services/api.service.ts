@@ -1,28 +1,28 @@
 import axios, { AxiosResponse } from 'axios';
 import Location from '../interfaces/Location.tsx';
 
-const apiUrl = 'http://localhost:3000';
+const API_URL = 'http://localhost:3000';
 
 export const ApiService = {
 	async getLocations(): Promise<Location[]> {
-		const response: AxiosResponse<Location[]> = await axios.get(`${apiUrl}/api/locations`);
+		const response: AxiosResponse<Location[]> = await axios.get(`${API_URL}/api/locations`);
 
 		return response.data;
 	},
 
 	async createLocation(location: Omit<Location, 'id'>): Promise<Location> {
-		const response: AxiosResponse<Location> = await axios.post(`${apiUrl}/api/locations`, location);
+		const response: AxiosResponse<Location> = await axios.post(`${API_URL}/api/locations`, location);
 
 		return response.data;
 	},
 
 	async updateLocation(id: string, location: Partial<Location>): Promise<Location> {
-		const response: AxiosResponse<Location> = await axios.put(`${apiUrl}/api/locations/${id}`, location);
+		const response: AxiosResponse<Location> = await axios.put(`${API_URL}/api/locations/${id}`, location);
 
 		return response.data;
 	},
 
 	async deleteLocation(id: string): Promise<void> {
-		await axios.delete(`${apiUrl}/api/locations/${id}`);
+		await axios.delete(`${API_URL}/api/locations/${id}`);
 	},
 };

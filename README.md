@@ -1,12 +1,29 @@
-# React + Vite
+# Locations on map (FRONT)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+На проекті використовується:
+- React.js + typescript + vite.
+- Як карта використовується leaflet + react-leaflet.
+- Для кластирізації використовується leaflet-cluster + react-leaflet-cluster.
+- Для реалізації запитів на бекенд використовується axios.
 
-Currently, two official plugins are available:
+Команди проекту:
+- npm run dev - запускає дев версію.
+- npm run build - гененрує папку dist з усім проектом (продакшен білд).
+- npm run format:check - перевірка відповідності файлу правилам .prettierrc.json
+- npm run format - рудагує всі файли проекту відповідно до .prettierrc.json
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Структура проект:
+- src/App.tsx - корінь проекту там збирається ввесь додаток.
+- src/components - папка в якій знаходяться всі компоненти. Компопнент складається з  ComponentName.tsx та ComponentName.scss файлів.
+- src/core - папка в якій знаходитьсь основна частина логіки проекту. Містить у собі services - папка з сервісами, interfaces - інтерфейсами та types - типами, які використовуються в проекті.
+- src/assets - папка в якій знаходяться зображення та іконки.
+- public - папка зі скачаними тайлами для карти. 
 
-## Expanding the ESLint configuration
+> **Важливо**
+> 
+> В репозиторії лежать заархівовані тайли public/tiles.zip. Перед запуском проекту їх потрібно розархівувати в папку public. Структура має бути наступна public/tiles/{10-15}
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Про обмеження і рішення в проекті:
+- Зум карти зроблений в діапазоні 10-15, це зроблено для того що б не завантажувати великий обсяг тайлів.
+- Карта працює лише в межах міста Київ, причина та сама що і в першому пункті.
+- На проекті використовується 18 версія react, а не 19 тому що був конфлікт залежностей з react-leaflet-cluster пакетом.

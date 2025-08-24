@@ -1,4 +1,4 @@
-import { isCoordinatesInBounds, MAP_BOUNDS } from '../constants/mapBounds';
+import { MapService } from './map.service';
 
 export class ValidationService {
 	static validateLocationName(name: string): string[] {
@@ -16,8 +16,8 @@ export class ValidationService {
 
 		if (lat === 0 && lon === 0) {
 			errors.push('Координати не можуть бути 0,0. Оберіть точку на карті або введіть валідні координати');
-		} else if (!isCoordinatesInBounds(lat, lon)) {
-			errors.push(`Координати повинні бути в межах доступної області карти (${MAP_BOUNDS.minLat} - ${MAP_BOUNDS.maxLat}, ${MAP_BOUNDS.minLon} - ${MAP_BOUNDS.maxLon})`);
+		} else if (!MapService.isCoordinatesInBounds(lat, lon)) {
+			errors.push(`Координати повинні бути в межах доступної області карти (${MapService.MAP_BOUNDS.minLat} - ${MapService.MAP_BOUNDS.maxLat}, ${MapService.MAP_BOUNDS.minLon} - ${MapService.MAP_BOUNDS.maxLon})`);
 		}
 
 		return errors;

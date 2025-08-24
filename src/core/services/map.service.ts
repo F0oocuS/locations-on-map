@@ -1,27 +1,34 @@
 import L from 'leaflet';
+
 import markerIcon from '../../assets/image/marker-icon.png';
 import markerShadow from '../../assets/image/marker-shadow.png';
 
 export class MapService {
+	static readonly MAP_BOUNDS = {
+		minLat: 50.2133,
+		maxLat: 50.59,
+		minLon: 30.2394,
+		maxLon: 30.825,
+	};
 	static readonly DEFAULT_CENTER: [number, number] = [50.4501, 30.5234];
 	static readonly DEFAULT_ZOOM = 12;
+	static readonly MIN_ZOOM = 10;
+	static readonly MAX_ZOOM = 15;
 	static readonly CITY_BOUNDS: L.LatLngBoundsExpression = [
-		[50.2133, 30.2394],
-		[50.59, 30.825],
+		[MapService.MAP_BOUNDS.minLat, MapService.MAP_BOUNDS.minLon],
+		[MapService.MAP_BOUNDS.maxLat, MapService.MAP_BOUNDS.maxLon],
 	];
-
 	static readonly TILE_LAYER_CONFIG = {
 		url: './tiles/{z}/{x}/{y}.png',
-		minZoom: 10,
-		maxZoom: 15,
+		minZoom: MapService.MIN_ZOOM,
+		maxZoom: MapService.MAX_ZOOM,
 	};
-
 	static readonly CLUSTER_CONFIG = {
 		maxClusterRadius: 80,
 		spiderfyOnMaxZoom: true,
-		showCoverageOnHover: false,
+		showCoverageOnHover: true,
 		zoomToBoundsOnClick: true,
-		disableClusteringAtZoom: 15,
+		disableClusteringAtZoom: MapService.MAX_ZOOM,
 	};
 
 	static createCustomIcon(): L.Icon {
@@ -64,11 +71,15 @@ export class MapService {
 		};
 	}
 
-	static flyToLocation(map: L.Map, location: { lat: number; lon: number }, zoom = 16) {
+	static flyToLocation(map: L.Map, location: { lat: number; lon: number }, zoom = MapService.MAX_ZOOM) {
 		map.flyTo([location.lat, location.lon], zoom, {
 			animate: true,
 			duration: 0.5,
 			easeLinearity: 0.1,
 		});
+	}
+
+	static isCoordinatesInBounds(lat: number, lon: number): boolean {
+		return lat >= MapService.MAP_BOUNDS.minLat && lat <= MapService.MAP_BOUNDS.maxLat && lon >= MapService.MAP_BOUNDS.minLon && lon <= MapService.MAP_BOUNDS.maxLon;
 	}
 }

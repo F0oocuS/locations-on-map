@@ -19,14 +19,4 @@ export class DialogService {
 			type: DialogService.DIALOG_TYPES.DANGER as 'danger',
 		};
 	}
-
-	static createDialogConfig(title: string, message: string, type: 'default' | 'danger' = 'default', confirmText?: string, cancelText?: string) {
-		return {
-			title,
-			message,
-			confirmText: confirmText || DialogService.DEFAULT_TEXTS.CONFIRM,
-			cancelText: cancelText || DialogService.DEFAULT_TEXTS.CANCEL,
-			type,
-		};
-	}
 }
